@@ -1,0 +1,29 @@
+
+#假设有 n 台超级洗衣机放在同一排上。开始的时候，每台洗衣机内可能有一定量的衣服，也可能是空的。
+
+在每一步操作中，你可以选择任意 m (1 <= m <= n) 台洗衣机，与此同时将每台洗衣机的一件衣服送到相邻的一台洗衣机。
+
+给定一个整数数组 machines 代表从左至右每台洗衣机中的衣物数量，请给出能让所有洗衣机中剩下的衣物的数量相等的 最少的操作步数 。如果不能使每台洗衣机中衣物的数量相等，则返回 -1 。
+
+#
+class Solution {
+    public int findMinMoves(int[] machines) {
+        int n = machines.length;
+        int sum = Arrays.stream(machines).sum();
+        if(sum%n!=0){
+            return -1;
+        }
+        int target = sum/n;
+        int minmove = 0;
+        int sumleft = 0;
+        for (int num:machines){
+            num-=target;
+            sumleft+=num;
+            minmove=Math.max(minmove,Math.max(Math.abs(sumleft),num));
+        }
+        return minmove;
+    } 
+}
+#使用贪心算法，将洗衣机分为左和右，先算出平均值即最终每台洗衣机的衣服数量，初始减去最终数量即为一个新的数组，该数组反映出洗衣机缺少或多的衣服。左边的总和的绝对值即为需要转移的衣服总数
+（左转右或者右转左），还有种可能是某一洗衣机衣服需要转移数量远大于其他，甚至超过了左边总和。
+所以从左到右遍历的同时得到sumleft和num取最大值。为什么理论的最小值一定取得到呢？不知道
