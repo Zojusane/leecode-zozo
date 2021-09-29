@@ -27,3 +27,49 @@ class Solution {
 #使用贪心算法，将洗衣机分为左和右，先算出平均值即最终每台洗衣机的衣服数量，初始减去最终数量即为一个新的数组，该数组反映出洗衣机缺少或多的衣服。左边的总和的绝对值即为需要转移的衣服总数
 （左转右或者右转左），还有种可能是某一洗衣机衣服需要转移数量远大于其他，甚至超过了左边总和。
 所以从左到右遍历的同时得到sumleft和num取最大值。为什么理论的最小值一定取得到呢？不知道
+###################################################
+自己的错误解法，将衣服最多的洗衣机放进衣服最少的洗衣机里，一次一件，会遗漏一次放两件的情况，通过49/120 感觉很难用正面逻辑求解，就是一步一步转化问题这样，只能证明理论最小值是最小值。
+public class Machines {
+    public int findMinMoves(int[] machines) {
+        int n = machines.length;
+        int sum = 0;
+        for (int i=0;i<n;i++){
+            sum+=machines[i];
+        }
+        if(sum%n==0){
+            return findMin(sum/n, n, machines);
+        }else{
+            return -1;
+        }
+    }
+    int minmove = 0;
+    public int findMin(int target, int length, int[] machines){
+        int min = machines[0], max = machines[0], mini = 0, maxi = 0;
+        for(int i=0;i<length;i++){
+            System.out.println(machines[i]);
+        }
+        for(int i=0;i<length;i++){
+            if(min>machines[i]){
+                min = machines[i];
+                mini = i;
+            }
+            if(max<machines[i]){
+                max = machines[i];
+                maxi = i;
+            }
+        }
+        if (max == min){
+            return minmove;
+        }else{
+            machines[mini]+=machines[maxi]-target;
+            minmove+=machines[maxi] - target;
+            machines[maxi]=target;
+            return findMin(target, length,  machines);
+        }
+    }
+    public static void main(String[] args) {
+        int[] machines= {3, 0, 3};
+        Machines ma = new Machines();
+        System.out.println(ma.findMinMoves(machines));
+    }
+}
