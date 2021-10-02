@@ -1,0 +1,96 @@
+####
+给定一个整数，编写一个算法将这个数转换为十六进制数。对于负整数，我们通常使用 补码运算 方法。
+
+注意:
+
+十六进制中所有字母(a-f)都必须是小写。
+十六进制字符串中不能包含多余的前导零。如果要转化的数为0，那么以单个字符'0'来表示；对于其他情况，十六进制字符串中的第一个字符将不会是0字符。 
+给定的数确保在32位有符号整数范围内。
+不能使用任何由库提供的将数字直接转换或格式化为十六进制的方法。
+示例 1：
+
+输入:
+26
+
+输出:
+"1a"
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/convert-a-number-to-hexadecimal
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+####################
+
+class Solution {
+    public String toHex(int num) {
+        String binary = Integer.toBinaryString(num);
+        int len = binary.length();
+        StringBuffer hex=new StringBuffer("");
+        for(int i = 0;i<len/4+(len%4==0?0:1);i++){
+            int start = Math.max(0,len-4*(i+1));
+            int end = len-4*i;
+            String bit = binary.substring(start,end);
+            int one = Integer.parseInt(bit,2);
+            if(one>=10){
+                hex.append(""+(char)('a'+one-10));
+            }else{
+                hex.append(""+one);
+            }
+        }
+        return hex.reverse().toString();
+    }
+}
+
+
+###########
+自己的想法是将利用二进制和十六进制的关系，每四位二进制组合就是十六进制，然后用一个stringbuffer添加到一起，然后reverse即为结果
+这个算法十分复杂，不管是时间复杂度还是空间复杂度都很垃圾
+###########
+官方的算法思路是一样的，原来是我实现的有问题。未使用转二进制字符串的方法，因为本身底层就是二进制，可以直接操作，右移可以将最后四位变成需要操作的四位，然后和0xf（15）做与操作
+得到最后四位
+#########
+class Solution {
+    public String toHex(int num) {
+        if (num == 0) {
+            return "0";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 7; i >= 0; i --) {
+            int val = (num >> (4 * i)) & 0xf;
+            if (sb.length() > 0 || val > 0) {
+                char digit = val < 10 ? (char) ('0' + val) : (char) ('a' + val - 10);
+                sb.append(digit);
+            }
+        }
+        return sb.toString();
+    }
+}
+##############
+
+三叶思路：
+我们可以利用通用的进制转换思路来做，不断循环 num % k 和 num / k 的操作来构造出 kk 进制每一位。
+
+但需要处理「补码」问题：对于负数的 numnum，我们需要先在 numnum 基础上加上 2^{32}的偏移量，再进行进制转换。
+
+作者：AC_OIer
+链接：https://leetcode-cn.com/problems/convert-a-number-to-hexadecimal/solution/gong-shui-san-xie-yi-ti-shuang-jie-jin-z-d93o/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+class Solution {
+    public String toHex(int _num) {
+        if (_num == 0) return "0";
+        long num = _num;
+        StringBuilder sb = new StringBuilder();
+        if(num < 0) num = (long)(Math.pow(2, 32) + num);
+        while (num != 0) {
+            long u = num % 16;
+            char c = (char)(u + '0');
+            if (u >= 10) c = (char)(u - 10 + 'a');
+            sb.append(c);
+            num /= 16;
+        }
+        return sb.reverse().toString();
+    }
+}
+
+###############
+思路2：和官方思路一样
