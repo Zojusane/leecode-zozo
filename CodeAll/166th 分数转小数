@@ -1,0 +1,148 @@
+给定两个整数，分别表示分数的分子 numerator 和分母 denominator，以 字符串形式返回小数 。
+
+如果小数部分为循环小数，则将循环的部分括在括号内。
+
+如果存在多个答案，只需返回 任意一个 。
+
+对于所有给定的输入，保证 答案字符串的长度小于 104 。
+输入：numerator = 1, denominator = 2
+输出："0.5"
+示例 2：
+
+输入：numerator = 2, denominator = 1
+输出："2"
+示例 3：
+
+输入：numerator = 2, denominator = 3
+输出："0.(6)"
+示例 4：
+
+输入：numerator = 4, denominator = 333
+输出："0.(012)"
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/fraction-to-recurring-decimal
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+来源：力扣（LeetCode）
+##########################
+class Solution {
+    public String fractionToDecimal(long numerator, long denominator) {
+        if(numerator%denominator == 0) return "" + numerator/denominator;
+        StringBuffer result = new StringBuffer("");
+        if (numerator*denominator>0){
+           result.append(""+numerator/denominator+".");
+           numerator=Math.abs(numerator);
+           denominator = Math.abs(denominator);
+        }else{
+            numerator=Math.abs(numerator);
+            denominator = Math.abs(denominator);
+            result.append("-"+numerator/denominator+"."); 
+        }
+        int len = result.length();
+        numerator%=denominator;
+        List<Long> yushu = new ArrayList<Long>();
+        yushu.add(numerator);
+        long start = (numerator*=10)/denominator;
+        while(numerator!=0){
+            result.append(""+start);
+            numerator%=denominator;
+            if (yushu.indexOf(numerator)==-1){
+                yushu.add(numerator);
+                start = (numerator*=10)/denominator;
+            }else{
+                result.insert(yushu.indexOf(numerator)+len,"(");
+                result.append(")");
+                break;
+            }
+            
+
+        } 
+        return result.toString();
+    }
+}
+#############
+首先将int改为long，很坑爹。然后分辨符号位；通过除法所得余数的循环时的位置加上左右括号，一定是除法的余数循环了，小数才会循环，不好通过某个位小数的重现表示循环
+（刚开始这么写的，十分复杂最终改变思路）余数乘以十后继续做除法循环找到余数重复的位置即可，或者余数为0，结束循环。
+判断符号使用（a<0^b<0）更好，使用乘法可能会溢出。
+#####################
+class Solution {
+    public String fractionToDecimal(int numerator, int denominator) {
+        long numeratorLong = (long) numerator;
+        long denominatorLong = (long) denominator;
+        if (numeratorLong % denominatorLong == 0) {
+            return String.valueOf(numeratorLong / denominatorLong);
+        }
+
+        StringBuffer sb = new StringBuffer();
+        if (numeratorLong < 0 ^ denominatorLong < 0) {
+            sb.append('-');
+        }
+
+        // 整数部分
+        numeratorLong = Math.abs(numeratorLong);
+        denominatorLong = Math.abs(denominatorLong);
+        long integerPart = numeratorLong / denominatorLong;
+        sb.append(integerPart);
+        sb.append('.');
+
+        // 小数部分
+        StringBuffer fractionPart = new StringBuffer();
+        Map<Long, Integer> remainderIndexMap = new HashMap<Long, Integer>();
+        long remainder = numeratorLong % denominatorLong;
+        int index = 0;
+        while (remainder != 0 && !remainderIndexMap.containsKey(remainder)) {
+            remainderIndexMap.put(remainder, index);
+            remainder *= 10;
+            fractionPart.append(remainder / denominatorLong);
+            remainder %= denominatorLong;
+            index++;
+        }
+        if (remainder != 0) { // 有循环节
+            int insertIndex = remainderIndexMap.get(remainder);
+            fractionPart.insert(insertIndex, '(');
+            fractionPart.append(')');
+        }
+        sb.append(fractionPart.toString());
+
+        return sb.toString();
+    }
+}
+
+#########官方解法，思路相同，使用hashmap速度更快。
+class Solution {
+    public String fractionToDecimal(int numerator, int denominator) {
+        // 转 long 计算，防止溢出
+        long a = numerator, b = denominator;
+        // 如果本身能够整除，直接返回计算结果
+        if (a % b == 0) return String.valueOf(a / b);
+        StringBuilder sb = new StringBuilder();
+        // 如果其一为负数，先追加负号
+        if (a * b < 0) sb.append('-');
+        a = Math.abs(a); b = Math.abs(b);
+        // 计算小数点前的部分，并将余数赋值给 a
+        sb.append(String.valueOf(a / b) + ".");
+        a %= b;
+        Map<Long, Integer> map = new HashMap<>();
+        while (a != 0) {
+            // 记录当前余数所在答案的位置，并继续模拟除法运算
+            map.put(a, sb.length());
+            a *= 10;
+            sb.append(a / b);
+            a %= b;
+            // 如果当前余数之前出现过，则将 [出现位置 到 当前位置] 的部分抠出来（循环小数部分）
+            if (map.containsKey(a)) {
+                int u = map.get(a);
+                return String.format("%s(%s)", sb.substring(0, u), sb.substring(u));
+            }
+        }
+        return sb.toString();
+    }
+}
+
+作者：AC_OIer
+链接：https://leetcode-cn.com/problems/fraction-to-recurring-decimal/solution/gong-shui-san-xie-mo-ni-shu-shi-ji-suan-kq8c4/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+###########三叶解法，思想一致。
+
+
