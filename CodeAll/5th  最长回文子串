@@ -55,3 +55,65 @@ class Solution {
 如abba可以是bb加上左a和右a，这是以两个字符为基础左右不停叠加形成；
 还有一种是三个字符为基础，如abcba，是由bcb为基础添加，于是我们遍历整个字符数组，找到所有的bb和bcb，再向两边扩展，找到最长的回文子串。
 ###################
+第二种方法是动态规划，设置dp[i][j]为boolean类型表示i-j的字串是否为回文子串，这个状态的确定由
+s.charAt[i]==s.charAt[j]和dp[i+1][j-1]的状态共同决定，只有两者都为true，dp[i][j]才是true。
+初始状态为j-i<3的时候，此时当s.charAt[i]==s.charAt[j]，一定为回文子串，如bab，bb，a。
+设置start和end，长度即为start-end+1，然后实时更新最长长度。或者begin和maxlen。
+################
+public class Solution {
+
+    public String longestPalindrome(String s) {
+        int len = s.length();
+        if (len < 2) {
+            return s;
+        }
+
+        int maxLen = 1;
+        int begin = 0;
+        // dp[i][j] 表示 s[i..j] 是否是回文串
+        boolean[][] dp = new boolean[len][len];
+        // 初始化：所有长度为 1 的子串都是回文串
+        for (int i = 0; i < len; i++) {
+            dp[i][i] = true;
+        }
+
+        char[] charArray = s.toCharArray();
+        // 递推开始
+        // 先枚举子串长度
+        for (int L = 2; L <= len; L++) {
+            // 枚举左边界，左边界的上限设置可以宽松一些
+            for (int i = 0; i < len; i++) {
+                // 由 L 和 i 可以确定右边界，即 j - i + 1 = L 得
+                int j = L + i - 1;
+                // 如果右边界越界，就可以退出当前循环
+                if (j >= len) {
+                    break;
+                }
+
+                if (charArray[i] != charArray[j]) {
+                    dp[i][j] = false;
+                } else {
+                    if (j - i < 3) {
+                        dp[i][j] = true;
+                    } else {
+                        dp[i][j] = dp[i + 1][j - 1];
+                    }
+                }
+
+                // 只要 dp[i][L] == true 成立，就表示子串 s[i..L] 是回文，此时记录回文长度和起始位置
+                if (dp[i][j] && j - i + 1 > maxLen) {
+                    maxLen = j - i + 1;
+                    begin = i;
+                }
+            }
+        }
+        return s.substring(begin, begin + maxLen);
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/longest-palindromic-substring/solution/zui-chang-hui-wen-zi-chuan-by-leetcode-solution/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+########################
+马拉松算法，看不懂
