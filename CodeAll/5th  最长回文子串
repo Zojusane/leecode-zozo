@@ -1,0 +1,57 @@
+给你一个字符串 s，找到 s 中最长的回文子串。回文子串就是aba，倒着读和顺着读一样。
+class Solution {
+    public String longestPalindrome(String s) {
+        String subs = new String(""+s.charAt(0));
+        StringBuffer subs2 = new StringBuffer("");
+        int n = s.length();
+        if (n == 1) return subs;
+        int position = 0;
+        for(int i=0;;i++){
+            if(s.charAt(i)==s.charAt(i+1)){
+                position = i;
+                subs2.append(s.substring(i,i+2));
+                while(true){
+                    if(2*i-1-position>=0&&position+2<n){
+                        if(s.charAt(2*i-1-position)==s.charAt(position+2)){
+                            subs2.insert(0,s.charAt(position+2));
+                            subs2.append(s.charAt(position+2));
+                            position++;
+                            continue;
+                        }
+                    }
+                    break;
+                }
+                if(subs2.length()>subs.length()){
+                    subs = subs2.toString();
+                }
+                subs2 = new StringBuffer("");   
+            }
+            if(i == n-2) break;
+            if(s.charAt(i)==s.charAt(i+2))  {
+                position = i;
+                subs2.append(s.substring(i,i+3));
+                while(true){
+                    if(2*i-1-position>=0&&position+3<n){
+                        if(s.charAt(2*i-1-position)==s.charAt(position+3)){
+                            subs2.insert(0,s.charAt(position+3));
+                            subs2.append(s.charAt(position+3));
+                            position++;
+                            continue;
+                        }
+                    }
+                    break;
+                }
+                if(subs2.length()>subs.length()){
+                    subs = subs2.toString();
+                }
+                subs2 = new StringBuffer("");   
+            }  
+        }
+        return subs;
+    }
+}
+##################
+思路是回文子串去掉左右两个符号，依旧是回文子串，所以回文子串的形成可以是加上左右两个符号，
+如abba可以是bb加上左a和右a，这是以两个字符为基础左右不停叠加形成；
+还有一种是三个字符为基础，如abcba，是由bcb为基础添加，于是我们遍历整个字符数组，找到所有的bb和bcb，再向两边扩展，找到最长的回文子串。
+###################
