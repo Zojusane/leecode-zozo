@@ -51,7 +51,8 @@ class Solution {
         return result;
     }
 }
-################这种解法比较适用，但是题目更加特殊，题目中的字符串是只由四种字符ATCG构成，所以应该有更快的解法
+################
+官方解法二：这种解法比较适用，但是题目更加特殊，题目中的字符串是只由四种字符ATCG构成，所以应该有更快的解法
 将ATCG分别编码为00,01,10,11,字符串就可以唯一解码成一个数字，对应的十个字符的字串也是一一映射到一个数字，这个数字由二十位数构成，int为32位，所以可以用int表示。
 赋值过程可一个个读入数字，同时之前读入的数字右移两位，再或操作。第一个数字由十个字符构成得到数字后，如果第二个数字也同理得到，那么和上面的解法就没有区别了，编码也没有意义。
 实际上，第一个数字左移两位，可以将第一个字符移到高位，再和后两位数字相或，得到一个22位的数字，再和(1<<20)-1相与，可以去掉前两位，得到后二十位数字，即得到第二个数，
@@ -86,4 +87,39 @@ class Solution {
         return ans;
     }
 }
+############
+三叶的解法，感觉思路和官方解法二是一样的，就是实现方式不同。三叶解法使用的是将字符转化成数字，字符本身是其ASCII码，然后使用一个很大的质数作为移位因子，如“ATCG”
+h[0] = 0 ;
+h[1] = h[0]*P+'A'='A' ;
+h[2] = h[1]*P+'T'='A'*P+'T';
+h[3] = h[2]*P+'C'='A'*P^2+'T'*P+C;
+h[4] = h[3]*P+'G'='A'*P^3+'T'*P^2+'C'*P+G;
+可以看到，P就是发挥进制的作用。同时h[4]-h[3]*P='G';h[4]-h[1]*P^3='T'*P^2+'C'*P+G;可以通过此得到字符串所代表的的数字，这是前缀和的思想。
+class Solution {
+    int N = (int)1e5+10, P = 131313;
+    int[] h = new int[N], p = new int[N];
+    public List<String> findRepeatedDnaSequences(String s) {
+        int n = s.length();
+        List<String> ans = new ArrayList<>();
+        p[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            h[i] = h[i - 1] * P + s.charAt(i - 1);
+            p[i] = p[i - 1] * P;
+        }
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 1; i + 10 - 1 <= n; i++) {
+            int j = i + 10 - 1;
+            int hash = h[j] - h[i - 1] * p[j - i + 1];
+            int cnt = map.getOrDefault(hash, 0);
+            if (cnt == 1) ans.add(s.substring(i - 1, i + 10 - 1));
+            map.put(hash, cnt + 1);
+        }
+        return ans;
+    }
+}
+
+作者：AC_OIer
+链接：https://leetcode-cn.com/problems/repeated-dna-sequences/solution/gong-shui-san-xie-yi-ti-shuang-jie-hua-d-30pg/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
