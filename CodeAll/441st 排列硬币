@@ -1,0 +1,64 @@
+
+##########
+你总共有 n 枚硬币，并计划将它们按阶梯状排列。对于一个由 k 行组成的阶梯，其第 i 行必须正好有 i 枚硬币。阶梯的最后一行 可能 是不完整的。
+
+给你一个数字 n ，计算并返回可形成 完整阶梯行 的总行数。
+
+class Solution {
+    public int arrangeCoins(int n) {
+        int i=0;
+        long sum=0;
+        while(n>=sum){
+            sum+=++i;
+        }
+        if(n==sum){
+            return i;
+        }
+        return i-1;
+    }
+}
+class Solution {
+    public int arrangeCoins(int n) {
+        int i=0;
+        long sum=0;
+        while(sum<=n){
+            sum+=++i;
+        }
+        return i-1;
+    }
+}
+############
+简单题 只需要自加器求和即可。 但是时间空间都有很大优化空间。下面解法去掉了判断。这个方法复杂度为O(n)，方法比较传统。
+###########
+官方的两个解法复杂度都有所优化。
+class Solution {
+    public int arrangeCoins(int n) {
+        return (int) ((Math.sqrt((long) 8 * n + 1) - 1) / 2);
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/arranging-coins/solution/pai-lie-ying-bi-by-leetcode-solution-w52c/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+##################
+求根公式所得，(n*(n+1))/2 = sum;所以n=(Math.sqrt((long) 8 * n + 1) - 1) / 2，向下取整，而int就是向下取整的。
+###############
+
+class Solution {
+    public int arrangeCoins(int n) {
+        int left = 1, right = n;
+        while (left < right) {
+            int mid = (right - left + 1) / 2 + left;
+            if ((long) mid * (mid + 1) <= (long) 2 * n) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return left;
+    }
+}
+
+###############
+使用二分法，由于最终结果一定在(1,sum)之间，所以左右边界取这个，然后通过(n*(n+1))/2 = sum寻找n即可。
