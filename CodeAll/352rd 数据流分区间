@@ -90,4 +90,138 @@ class SummaryRanges {
  * int[][] param_2 = obj.getIntervals();
  */
  ######################
- 
+ 由于数组是固定长度的，需要将末尾的（0，0）去掉，耽误了时间。
+ 一开始并不知道List<int[]>这个东西，后面修改后，但也没提升很多。时间上快了一倍。
+ class SummaryRanges {
+    private TreeSet<Integer> col = new TreeSet<>();
+    public SummaryRanges() {
+
+    }
+    
+    public void addNum(int val) {
+        col.add(val);
+    }
+    
+    public int[][] getIntervals() {
+        int len = col.size();
+        int temp = 0,temp2 = 0;
+        List<int[]> intervals = new ArrayList<>();
+        Iterator iter = col.iterator();
+        if(iter.hasNext()){
+            temp = (int)iter.next();
+            int[] range = {temp,temp};
+            while(true){
+                if(iter.hasNext()){
+                    temp2=(int)iter.next();
+                    if(temp+1 == temp2){
+                        temp = temp2;
+                        // continue;
+                        range[1] = temp;
+                    }else{
+                        intervals.add(range);
+                        range = new int[2];
+                        range[0] = temp2;
+                        range[1] = temp2;
+                        temp = temp2;
+                    }
+                }else{
+                    intervals.add(range);
+                    break;
+                }
+            }
+        }
+        return intervals.toArray(new int[][]{});
+    }
+}
+##############
+使用TreeSet对数据进行去重排序，然后将连续的数字组成一个区间即可。
+注意第二个方法需要每次循环将range重新申请空间，不然会出现add进去的全部是range最后一次循环的值，估计和java的底层有关。
+#############
+ public void addNum(int val) {
+        // 找到 l1 最小的且满足 l1 > val 的区间 interval1 = [l1, r1]
+        // 如果不存在这样的区间，interval1 为尾迭代器
+        Map.Entry<Integer, Integer> interval1 = intervals.ceilingEntry(val + 1);
+        // 找到 l0 最大的且满足 l0 <= val 的区间 interval0 = [l0, r0]
+        // 在有序集合中，interval0 就是 interval1 的前一个区间
+        // 如果不存在这样的区间，interval0 为尾迭代器
+        Map.Entry<Integer, Integer> interval0 = intervals.floorEntry(val);
+
+        if (interval0 != null && interval0.getKey() <= val && val <= interval0.getValue()) {
+            // 情况一
+            return;
+        } else {
+            boolean leftAside = interval0 != null && interval0.getValue() + 1 == val;
+            boolean rightAside = interval1 != null && interval1.getKey() - 1 == val;
+            if (leftAside && rightAside) {
+                // 情况四
+                int left = interval0.getKey(), right = interval1.getValue();
+                intervals.remove(interval0.getKey());
+                intervals.remove(interval1.getKey());
+                intervals.put(left, right);
+            } else if (leftAside) {
+                // 情况二
+                intervals.put(interval0.getKey(), interval0.getValue() + 1);
+            } else if (rightAside) {
+                // 情况三
+                int right = interval1.getValue();
+                intervals.remove(interval1.getKey());
+                intervals.put(val, right);
+            } else {
+                // 情况五
+                intervals.put(val, val);
+            }
+        }
+    }
+    
+    public int[][] getIntervals() {
+        int size = intervals.size();
+        int[][] ans = new int[size][2];
+        int index = 0;
+        for (Map.Entry<Integer, Integer> entry : intervals.entrySet()) {
+            int left = entry.getKey(), right = entry.getValue();
+            ans[index][0] = left;
+            ans[index][1] = right;
+            ++index;
+        }
+        return ans;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/data-stream-as-disjoint-intervals/solution/jiang-shu-ju-liu-bian-wei-duo-ge-bu-xian-hm1r/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+######################
+假设我们使用某一数据结构维护这些不相交的区间，在设计具体的数据结构之前，我们需要先明确 \texttt{void addNum(int val)}void addNum(int val) 这一操作会使得当前的区间集合发生何种变化：
+
+情况一：如果存在一个区间 [l, r][l,r]，它完全包含 val，即  rl≤val≤r，那么在加入val 之后，区间集合不会有任何变化；
+
+情况二：如果存在一个区间 [l, r][l,r]，它的右边界 rr「紧贴着」val，即 r + 1 =val，那么在加入 val 之后，该区间会从 [l, r][l,r] 变为 [l, r+1][l,r+1]；
+
+情况三：如果存在一个区间 [l, r][l,r]，它的左边界 ll「紧贴着」val，即 l - 1 = val，那么在加入 val 之后，该区间会从 [l, r][l,r] 变为 [l - 1, r][l−1,r]；
+
+情况四：如果情况二和情况三同时满足，即存在一个区间 [l_0, r_0] 满足 r_0+1 1=val，并且存在一个区间 [l_1, r_1] 满足 l_1-1 = val，
+那么在加入 val 之后，这两个区间会合并成一个大区间 [l_0, r_1] 
+
+情况五：在上述四种情况均不满足的情况下，val 会单独形成一个新的区间 [val,val]。
+
+根据上面的五种情况，我们需要找到离 \textit{val}val 最近的两个区间。用严谨的语言可以表述为：
+
+对于给定的 \textit{val}val，我们需要找到区间 [l_0, r_0]，使得 l_0是最大的满足 l_0≤val 的区间。同时，我们需要找到区间 [l_1, r_1]，使得 l_1是最小的满足 l_1 >val 的区间。
+如果我们的数据结构能够快速找到这两个区间，那么上面的五种情况分别对应为：
+
+情况一：l_0 ≤ val ≤ l_1；
+情况二：r_0 + 1 =val；
+情况三：l_1 - 1 =val；
+情况四：r_0 + 1 =val 并且 l_1 - 1 =val；
+情况五：上述情况均不满足。
+一种可以找到「最近」区间的数据结构是有序映射。有序映射中的键和值分别表示区间的左边界 ll 和右边界 rr。由于有序映射支持查询「最大的比某个元素小的键」以及「最小的比某个元素大的键」
+这两个操作，因此我们可以快速地定位区间 [l_0, r_0]和 [l_1, r_1]。
+
+除此之外，对于 int[][] getIntervals() 操作，我们只需要对有序映射进行遍历，将所有的键值对返回即可。
+
+TreeMap中的ceilingEntry(K key)方法就是用于寻找最小的大于等于key的Entry，floorEntry(K key)则是最大的小于等于key的Entry.注意 [l_0, r_0]或 [l_1, r_1] 不存在的情况。
+
+
+
+
