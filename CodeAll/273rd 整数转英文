@@ -1,0 +1,113 @@
+将非负整数 num 转换为其对应的英文表示。
+
+示例 1：
+
+输入：num = 123
+输出："One Hundred Twenty Three"
+示例 2：
+
+输入：num = 12345
+输出："Twelve Thousand Three Hundred Forty Five"
+示例 3：
+
+输入：num = 1234567
+输出："One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+示例 4：
+
+输入：num = 1234567891
+输出："One Billion Two Hundred Thirty Four Million Five Hundred Sixty Seven Thousand Eight Hundred Ninety One"
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/integer-to-english-words
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+####################
+class Solution {
+    public String numberToWords(int num) {
+       if(num==0) return "Zero";
+       String[] ONE = {"","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"};
+       String[] TEN = {"","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"};
+       String[] OTHER = {"","Thousand","Million","Billion"};
+       String[] HEAD = {""," "};
+       String number = Integer.toString(num);
+       StringBuffer result = new StringBuffer("");
+       int times = 0;
+       for(int i = number.length()-1;i>=0;i-=3){
+            if(i-2>0&&Integer.parseInt(""+number.charAt(i-2)+number.charAt(i-1)+number.charAt(i))==0){
+                times++;
+                continue;
+            }
+            result.insert(0,HEAD[times==0?0:1]+OTHER[times]);
+            if(i>0) 
+                if(number.charAt(i-1)=='1'||(number.charAt(i-1)=='0'&&number.charAt(i)!='0')){
+                    result.insert(0,HEAD[i==1?0:1]+ONE[Integer.parseInt(""+number.charAt(i-1)+number.charAt(i))]);
+                }else {
+                    int ind = Integer.parseInt(""+number.charAt(i));
+                    result.insert(0,HEAD[ind==0?0:1]+ONE[ind]);
+                    int ind2 = Integer.parseInt(""+number.charAt(i-1));
+                    result.insert(0,HEAD[i==1||(ind==0&&ind2==0)?0:1]+TEN[ind2]);
+                }
+            else{
+                result.insert(0,ONE[Integer.parseInt(""+number.charAt(i))]);
+            }
+            if(i-2>=0){
+                int index = Integer.parseInt(""+number.charAt(i-2));
+                if (index!=0){
+                    result.insert(0,HEAD[i==2?0:1]+ONE[index]+" Hundred");
+                }
+            }
+            times++;
+       }
+    return result.toString();
+    }
+}
+#################
+想法比较暴力，转字符串之后，从最后三个字符开始遍历，往前迭代。考虑好所有情况，首先是最后两位小于20的时候需要单独考虑，
+由于对应数组第一个字符串为空字符，最后两位全为零并未单独考虑，直接加上空字符，然后HEAD数组用于判断是否需要空格。
+每一次循环加上一个OTHER内的Thousand，Million或Billion，由于题目给的数小于2^32-1,所以billion后不需要继续重复.
+注意一次循环中三个字符都是0的情况,直接continue,但别忘了OTHER++;由于从后遍历,需要使用StringBuffer的insert操作,时间复杂度高,考虑从前遍历.
+##################
+class Solution {
+    String[] singles = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+    String[] teens = {"Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    String[] tens = {"", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    String[] thousands = {"", "Thousand", "Million", "Billion"};
+
+    public String numberToWords(int num) {
+        if (num == 0) {
+            return "Zero";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 3, unit = 1000000000; i >= 0; i--, unit /= 1000) {
+            int curNum = num / unit;
+            if (curNum != 0) {
+                num -= curNum * unit;
+                StringBuffer curr = new StringBuffer();
+                recursion(curr, curNum);
+                curr.append(thousands[i]).append(" ");
+                sb.append(curr);
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    public void recursion(StringBuffer curr, int num) {
+        if (num == 0) {
+            return;
+        } else if (num < 10) {
+            curr.append(singles[num]).append(" ");
+        } else if (num < 20) {
+            curr.append(teens[num - 10]).append(" ");
+        } else if (num < 100) {
+            curr.append(tens[num / 10]).append(" ");
+            recursion(curr, num % 10);
+        } else {
+            curr.append(singles[num / 100]).append(" Hundred ");
+            recursion(curr, num % 100);
+        }
+    }
+}
+####################
+使用除法和求余数,可以把数字三个三个的提取出来,包括最前面的几位不到三位的数,通过大小也可以相应添加Thousand等单词,自己的方法过于愚蠢了.
+而且空格也无需在意,最后用.trim()函数去掉首位空格即可.
+
+
