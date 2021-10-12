@@ -1,0 +1,74 @@
+给定两个整数，被除数 dividend 和除数 divisor。将两数相除，要求不使用乘法、除法和 mod 运算符。
+
+返回被除数 dividend 除以除数 divisor 得到的商。
+
+整数除法的结果应当截去（truncate）其小数部分，例如：truncate(8.345) = 8 以及 truncate(-2.7335) = -2
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/divide-two-integers
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+#################
+class Solution {
+    public int divide(long dividend, long divisor) {
+        long result = 0;
+        int sign = 1;
+        int helpd = 1;
+        if((dividend<0&&divisor>0)||(dividend>0&&divisor<0)){
+            sign = -1;
+        }
+        dividend = Math.abs(dividend);
+        divisor = Math.abs(divisor);
+        long temp = divisor;
+        while(dividend>=temp){
+            dividend-=divisor;
+            result+=helpd;
+            divisor+=divisor;
+            helpd+=helpd;
+            if(dividend<divisor){
+                divisor = temp;
+                helpd=1;
+            }
+        }
+        if (result>2147483647&&sign==1) return 2147483647;
+        if(sign==1) return (int)result;
+        return (int)-result;
+    }
+}
+#############
+除法就是不停地做减法，被除数减一次除数，结果加1.但是这样会超时，所以每减一次把除数翻一倍，对应的结果也翻一倍，运算速度会很快，
+同时当除数翻倍后大于被除数时，运算并没有结束，将除数重置原来的数再做减法，知道被除数小于原来的除数，运算结束。
+单独考虑结果大于2147483647的情况。java时间100%，空间10%。翻一倍的操作可以用移位完成；
+#############
+由于题目的本意是不使用long类型，所以上述方法仅供参考
+###########
+class Solution {
+    public int divide(int dividend, int divisor) {
+        if(dividend==-2147483648&&divisor==-1) return 2147483647;
+        if(dividend==-2147483648&&divisor==1) return -2147483648;
+        int result = 0;
+        int sign = 1;
+        int helpd = 1;
+        if((dividend<0&&divisor>0)||(dividend>0&&divisor<0)){
+            sign = -1;
+        }
+        dividend = -Math.abs(dividend);
+        divisor = -Math.abs(divisor);
+        int temp = divisor;
+        while(dividend<=temp){
+            dividend-=divisor;
+            result+=helpd;
+            divisor+=divisor;
+            helpd+=helpd;
+            if(dividend>divisor){
+                divisor = temp;
+                helpd=1;
+            }
+        }
+        if(sign==-1) result=-result;
+        return result;
+    }
+}
+#############
+去掉long类型，实际上代码并没有多大变化，考虑好两个边界的极端条件后，由于溢出问题，最重要的一步就是：
+“将两个数都变成负数然后求解，就不会有此问题。”注意转化为负数之后判断条件也发生了变化。
