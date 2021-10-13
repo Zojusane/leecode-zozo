@@ -1,0 +1,150 @@
+给定一个字符串 s ，请你找出其中不含有重复字符的 最长子串 的长度。
+
+ 
+
+示例 1:
+
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/longest-substring-without-repeating-characters
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+##############
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int len = s.length();
+        if (len ==0) return 0;
+        if (len ==1) return 1;
+        int result = 0;
+        char[] c = s.toCharArray(); 
+        for(int i=0;i<len-1;i++){
+            int j = i+1;
+            StringBuffer sb = new StringBuffer();
+            sb.append(""+c[i]);
+            while(j<len&&sb.indexOf(""+c[j])==-1){
+                sb.append(""+c[j]);
+                j++;
+            }
+            if(j-i>result) result = j-i;
+            if(j==len){
+                break;
+            }else{
+                i += sb.indexOf(""+c[j]);
+            }
+
+        }
+        return result;
+    }
+}
+############
+双重迭代的方法，sb添加经过的字符，当字符重复时退出循环j，将导致字符重复的位置赋予i，i自加后从重复后一位开始循环。然而这样有很多重复的循环和重复的sb.append,拖慢了时间。255ms 5%
+#############
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int len = s.length();
+        if (len ==0) return 0;
+        if (len ==1) return 1;
+        int result = 0;
+        char[] c = s.toCharArray();
+        int j = 1;
+        StringBuffer sb = new StringBuffer();
+        sb.append(""+c[0]);
+        for(int i=0;i<len-1;i++){
+            while(j<len&&sb.indexOf(""+c[j])==-1){
+                sb.append(""+c[j]);
+                j++;
+            }
+            if(j-i>result) result = j-i;
+            if(j==len){
+                break;
+            }else{
+                i += sb.indexOf(""+c[j]);
+                if(len-1-i<result) break;
+                sb.delete(0,sb.indexOf(""+c[j])+1);
+            }
+
+        }
+        return result;
+    }
+}
+##############
+将sb做成动态buffer，通过delete和append并用，同时j在循环中设置了窗口的初始长度般移动，最初即为重复字符后一位到下一个重复字符的窗口然后继续循环。时间复杂度降为O(n) 16ms 17%
+但是还是只打败了17%的java，这是为什么呢？
+#############
+由于我们并不返回最长子串，而是返回长度，所以并不需要创建一个sb来判定，使用hashmap即可。
+###########
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int len = s.length();
+        if(len==0) return 0;
+        int result = 0;
+        char[] c = s.toCharArray();
+        int j = 1;
+        Map<Character,Integer> map = new HashMap<>();
+        map.put(c[0],0);
+        for(int i=0;i<len;i++){
+            while(j<len&&!map.containsKey(c[j])){
+                map.put(c[j],j);
+                j++;
+            }
+            if(j-i>result) result = j-i;
+            if(j==len){
+                break;
+            }else if(map.get(c[j])>i){
+                for(;i<map.get(c[j]);i++){
+                    map.remove(c[i]);
+                } 
+            } 
+            map.remove(c[i]);
+            if(len-1-i<result) break;
+        }
+        return result;
+    }
+}
+#########
+使用原来的思想改成hashmap，有个比较大的问题就是，需要将之前的map存储的键remove掉，逻辑上有点复杂，容易出错。9ms，也只有22%，提交的都是啥算法，太牛了
+#########
+最快的算法
+public int lengthOfLongestSubstring(String s) {
+        HashMap<Character, Integer> map = new HashMap<>();
+        int max = 0, start = 0;
+        for (int end = 0; end < s.length(); end++) {
+            char ch = s.charAt(end);
+            if (map.containsKey(ch)){
+                start = Math.max(map.get(ch)+1,start);
+            }
+            max = Math.max(max,end - start + 1);
+            map.put(ch,end);
+       }
+       return max;
+  }
+  5ms 81%
+##################
+直接遍历随着窗行动，左边界为start = 0；右边界往前移动，当碰到相同的字符时，左边界将更新为相同字符的位置的下一位，此时之前的字符都会自动失效，
+因为这里取的是和start的max，所以再出现之前的字符也没事，不需要删除。当不存在相同的时候，循环在进行，窗口的大小被max记录。
+#################
+更快的算法：不使用map，使用一个128的数组记录所有字符，因为只有128个字符。其他思想和上一个思想一样。
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        // 记录字符上一次出现的位置
+        int[] last = new int[128];
+        for(int i = 0; i < 128; i++) {
+            last[i] = -1;
+        }
+        int n = s.length();
+
+        int res = 0;
+        int start = 0; // 窗口开始位置
+        for(int i = 0; i < n; i++) {
+            int index = s.charAt(i);
+            start = Math.max(start, last[index] + 1);
+            res   = Math.max(res, i - start + 1);
+            last[index] = i;
+        }
+
+        return res;
+    }
+}
+99.13% 2ms
