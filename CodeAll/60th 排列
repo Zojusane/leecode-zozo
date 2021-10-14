@@ -51,3 +51,75 @@ int main()
 先上代码，深度优先算法，通过递归的方式遍历所有可能，有点类似于一个萝卜一个坑，占了坑的地方设为true；没占坑的地方按顺序占，
 字典顺序正是数字大小顺序，所以小的在前面，n个循环代表了每个整数放第一位的情况，然后递归的时候，有一个循环由于st为true，所以有效循环是n-1个，即剩下数字的排列
 正好也是按照去掉第一个数字后的数字大小排列，所以一共有n！次排列。同时不要忘了，排列结束后重置为false，方便重新占坑。
+################
+另一种非递归算法，通过n！的循环输出n！个序列，每一个都由前一个变换得到，第一个是顺序输出，然后后面就按照这样的规则进行：
+找到从后往前是递减的两位数，前一位a，后一位a+1，a与后面剩余的序列相比找到一个大于a的最小值，然后交换这两个值，再将a后面的序列倒序，即是下一个输出序列。
+################
+#include <iostream>
+using namespace std;
+ 
+//计算n的阶乘
+int factorial(int n) {
+    int result = 1;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+ 
+//改变原数组的顺序为下一个字典序
+void next_permutation(int* arr, int length) {
+    int a = -1, b = -1;
+    int min_ = 100;
+    //找到a，a的含义见思路
+    for (int i = length - 2; i >= 0; i--) {
+        if (arr[i] < arr[i + 1]) {
+            a = i;
+            break;
+        }
+    }
+    // a=-1意味着数组是逆序的，不存在下一字典序，故返回
+    if (a == -1) return;
+    //找b
+    for (int i = a + 1; i < length; i++) {
+        if (arr[i] > arr[a] && arr[i] < min_) {
+            b = i;
+            min_ = arr[i];
+        }
+    }
+    //交换a，b
+    int temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+    //a+1到末尾数组逆序
+    for (int i = a + 1; i <= (a + length - 1)/2; i++) {
+        temp = arr[i];
+        arr[i] = arr[a + length - i];
+        arr[a + length - i] = temp;
+    }
+}
+ 
+int main(void) {
+    int m, n;
+    int arr[11];
+    cin >> m;
+    while (m--) {
+        cin >> n;
+        //按升序初始化数组
+        for (int i = 0; i < n; i++) {
+            arr[i] = i + 1;
+        }
+        //全排列数一共是n！，每个先打印结果，再改变数组至下一字典序
+        for (int i = 1; i <= factorial(n); i++) {
+            for (int i = 0; i < n; i++) {
+                cout << arr[i];
+            }
+            cout << endl;
+            if (i != factorial(n))
+                next_permutation(arr, n);
+        }
+    }
+}
+————————————————
+版权声明：本文为CSDN博主「desirepath」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/desirepath/article/details/50447712
