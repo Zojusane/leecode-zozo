@@ -1,0 +1,27 @@
+符合下列属性的数组 arr 称为 山峰数组（山脉数组） ：
+
+arr.length >= 3
+存在 i（0 < i < arr.length - 1）使得：
+arr[0] < arr[1] < ... arr[i-1] < arr[i]
+arr[i] > arr[i+1] > ... > arr[arr.length - 1]
+给定由整数组成的山峰数组 arr ，返回任何满足 arr[0] < arr[1] < ... arr[i - 1] < arr[i] > arr[i + 1] > ... > arr[arr.length - 1] 的下标 i ，即山峰顶部。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/B1IidL
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+#################
+class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        int left = 0,right = arr.length-1;
+        int mid = (left+right)/2;
+        while(true){
+            if(arr[mid-1]<arr[mid]&&arr[mid]>arr[mid+1]) break;
+            if(arr[mid]>arr[left]&&arr[mid+1]>arr[mid])  left = mid;
+            if(arr[mid]>arr[right]&&arr[mid]>arr[mid+1]) right = mid+1;
+            mid = (left+right)/2;
+        }
+        return mid;
+    }
+}
+#####################
+使用二分法时间复杂度为O(logn)。简单题，通过不断寻找更接近定点的左山峰和右山峰得到顶点后退出。时间100%
