@@ -25,3 +25,17 @@ class Solution {
 }
 #####################
 使用二分法时间复杂度为O(logn)。简单题，通过不断寻找更接近定点的左山峰和右山峰得到顶点后退出。时间100%
+下面为简单写法，前面的很多地方都写复杂了。
+##################
+class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        int left = 0,right = arr.length-1;
+        int mid = (left+right)/2;
+        while(left<right){
+            if(arr[mid+1]>arr[mid])  left = mid+1;
+            else right = mid;
+            mid = (left+right)/2;
+        }
+        return mid;
+    }
+}
