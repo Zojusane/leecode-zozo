@@ -1,0 +1,58 @@
+给出集合 [1,2,3,...,n]，其所有元素共有 n! 种排列。
+
+按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下：
+
+"123"
+"132"
+"213"
+"231"
+"312"
+"321"
+给定 n 和 k，返回第 k 个排列。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/permutation-sequence
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+###############
+这题才是真正的leecode上的排列题，另外一个是类似的，输出所有的排列顺序，这个是输出其中第k个，我们使用之前的算法来做
+class Solution {
+    int tim = 0;
+    public String getPermutation(int n, int k) {
+        tim = k;
+        int[] arr = new int[n+1];
+        String a="";
+        boolean[] str = new boolean[n+1];
+        // for(int i=1;i<=n;i++){
+        //     arr[i] = i;
+        //     str[i] = false;
+        // }
+        dfs(1,arr,str,n);
+        for(int i=1;i<=n;i++){
+            a =new String(a+Integer.toString(arr[i])); 
+        }
+        return a;
+    }
+    public int dfs(int u,int[]arr,boolean[] str,int n){
+        if(u>n){
+            tim-=1;
+            if(tim==0) return -1;
+        }
+        for(int i=1;i<=n;i++){
+            if(!str[i]){
+                str[i] = true;
+                arr[u] = i;
+                if(dfs(u+1,arr,str,n)==-1) return -1;
+                str[i] = false;
+            }
+        }
+        return 0;
+    }
+}
+#############
+设置一个全局变量，当达到k个序列的时候返回-1，光速退出递归，输出此时的序列即可。
+这里再讲一下输出全序列的算法，简单来说就是一个萝卜一个坑，i是萝卜，u是坑, str[i]是萝卜是否能填入坑的状态,
+u每次自加都会进入新的函数,里面的str为false说明是空的,那么u就可以填进i,arr[u]=i;并且整个过程是按照顺序来的.
+##############
+单这道题好像可以不用这么复杂.
+
+
