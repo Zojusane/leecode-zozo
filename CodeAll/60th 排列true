@@ -160,3 +160,44 @@ public String getPermutation1(int n, int k) {
     }
     return permutation.toString();
 }
+################################
+这个算法和上一个类似,就是直接通过除法代替了减法,然后维护一个有序链表,拿走一个数后,剩余的数继续等待被拿走
+##################################
+import java.util.LinkedList;
+import java.util.List;
+
+public class Solution {
+
+    public String getPermutation(int n, int k) {
+        // 注意：相当于在 n 个数字的全排列中找到下标为 k - 1 的那个数，因此 k 先减 1
+        k --;
+
+        int[] factorial = new int[n];
+        factorial[0] = 1;
+        // 先算出所有的阶乘值
+        for (int i = 1; i < n; i++) {
+            factorial[i] = factorial[i - 1] * i;
+        }
+
+        // 这里使用数组或者链表都行
+        List<Integer> nums = new LinkedList<>();
+        for (int i = 1; i <= n; i++) {
+            nums.add(i);
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // i 表示剩余的数字个数，初始化为 n - 1
+        for (int i = n - 1; i >= 0; i--) {
+            int index = k / factorial[i] ;
+            stringBuilder.append(nums.remove(index));
+            k -= index * factorial[i];
+        }
+        return stringBuilder.toString();
+    }
+}
+
+作者：liweiwei1419
+链接：https://leetcode-cn.com/problems/permutation-sequence/solution/hui-su-jian-zhi-python-dai-ma-java-dai-ma-by-liwei/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
