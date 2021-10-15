@@ -56,4 +56,84 @@ u每次自加都会进入新的函数,里面的str为false说明是空的,那么
 单这道题好像可以不用这么复杂.
 并不需要层层遍历找到第k个序列，因为这是有规律的，比如一共有n!个结果,每个数字放第一位的结果都有(n-1)!个结果,所以当k>(n-1)!的时候,结果就不可能是1开头的
 用这个特性可以找到结果的第一位是什么,然后同理找到第二位,...然后得到最终结果.
+###############
+import java.util.Arrays;
+
+public class Solution {
+
+    /**
+     * 记录数字是否使用过
+     */
+    private boolean[] used;
+
+    /**
+     * 阶乘数组
+     */
+    private int[] factorial;
+
+    private int n;
+    private int k;
+
+    public String getPermutation(int n, int k) {
+        this.n = n;
+        this.k = k;
+        calculateFactorial(n);
+
+        // 查找全排列需要的布尔数组
+        used = new boolean[n + 1];
+        Arrays.fill(used, false);
+
+        StringBuilder path = new StringBuilder();
+        dfs(0, path);
+        return path.toString();
+    }
+
+
+    /**
+     * @param index 在这一步之前已经选择了几个数字，其值恰好等于这一步需要确定的下标位置
+     * @param path
+     */
+    private void dfs(int index, StringBuilder path) {
+        if (index == n) {
+            return;
+        }
+
+        // 计算还未确定的数字的全排列的个数，第 1 次进入的时候是 n - 1
+        int cnt = factorial[n - 1 - index];
+        for (int i = 1; i <= n; i++) {
+            if (used[i]) {
+                continue;
+            }
+            if (cnt < k) {
+                k -= cnt;
+                continue;
+            }
+            path.append(i);
+            used[i] = true;
+            dfs(index + 1, path);
+            // 注意 1：不可以回溯（重置变量），算法设计是「一下子来到叶子结点」，没有回头的过程
+            // 注意 2：这里要加 return，后面的数没有必要遍历去尝试了
+            return;
+        }
+    }
+
+    /**
+     * 计算阶乘数组
+     *
+     * @param n
+     */
+    private void calculateFactorial(int n) {
+        factorial = new int[n + 1];
+        factorial[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            factorial[i] = factorial[i - 1] * i;
+        }
+    }
+}
+
+作者：liweiwei1419
+链接：https://leetcode-cn.com/problems/permutation-sequence/solution/hui-su-jian-zhi-python-dai-ma-java-dai-ma-by-liwei/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+#####################
 
