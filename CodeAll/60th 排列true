@@ -136,4 +136,27 @@ public class Solution {
 来源：力扣（LeetCode）
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 #####################
-
+不使用递归而是使用循环来做.
+############
+public String getPermutation1(int n, int k) {
+    final int[] arr = new int[]{1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+    boolean[] visited = new boolean[n + 1];//这个数组保存的是最终结果的形成过程,如visited[1]为FALSE的时候说明数字1还没被选择,同理直到数字n;选择的顺序由k和cnt决定.
+    Arrays.fill(visited, false);
+    StringBuilder permutation = new StringBuilder();
+    for (int i = n - 1; i >= 0; i--) {
+        int cnt = arr[i];//阶乘表示此时选择下一个数字时,每个数字都有这么多种可能,而且是有序的,所以可以k-=cnt;
+        for (int j = 1; j <= n; j++) {
+            if (visited[j]) {
+                continue;
+            }
+            if (k > cnt) {
+                k -= cnt;
+                continue;
+            }
+            visited[j] = true;//选中数字j后剔出备选数字
+            permutation.append(j);
+            break;//每次循环其实只选择一个数字;
+        }
+    }
+    return permutation.toString();
+}
