@@ -1,0 +1,45 @@
+给你一个 正 整数 num ，输出它的补数。补数是对该数的二进制表示取反。
+
+ 
+
+示例 1：
+
+输入：num = 5
+输出：2
+解释：5 的二进制表示为 101（没有前导零位），其补数为 010。所以你需要输出 2 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/number-complement
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+###################
+class Solution {
+    public int findComplement(int num) {
+        int len = Integer.toBinaryString(num).length();
+        num=num^(int)(Math.pow(2,len)-1);
+        return num;
+    }
+}
+##############
+得到num的二进制的长度，然后与对应长度的1，如111为7=2^3-1,3位长度。两者异或即是补数。
+################
+class Solution {
+    public int findComplement(int num) {
+        int highbit = 0;
+        for (int i = 1; i <= 30; ++i) {
+            if (num >= 1 << i) {
+                highbit = i;
+            } else {
+                break;
+            }            
+        }
+        int mask = highbit == 30 ? 0x7fffffff : (1 << (highbit + 1)) - 1;
+        return num ^ mask;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/number-complement/solution/shu-zi-de-bu-shu-by-leetcode-solution-xtn8/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+#￥###########
+官方没有使用这个函数，可能有点违背算法的意思，找到数在哪两个2^i之间，i就是那个长度。后面同理
