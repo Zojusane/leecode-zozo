@@ -1,0 +1,71 @@
+给定一个二叉搜索树的根节点 root ，和一个整数 k ，请你设计一个算法查找其中第 k 个最小元素（从 1 开始计数）。
+二叉搜索树是左子树节点小于根节点，右子树节点大于根节点。
+##################
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    Map<TreeNode,Integer> mapleft;
+    public int kthSmallest(TreeNode root, int k) {
+        mapleft = new HashMap<>();
+        dfs(root);
+        while(true){
+            if(k==mapleft.get(root)+1) return root.val;
+            if(k<=mapleft.get(root)) {root = root.left;continue;}
+            k = k-mapleft.get(root)-1;
+            root = root.right;
+        }
+    }
+    public int dfs(TreeNode root){
+        int left = 0,right = 0;
+        if(root.left!=null)  left = dfs(root.left);
+        if(root.right!=null) right = dfs(root.right);
+        mapleft.put(root,left);
+        return left+right+1;
+    }
+}
+################
+通过遍历左右子树，得到所有节点的左子树的节点数，就是这个节点之前有多少节点比它的值小。然后根据k的大小，往下遍历找到第k小的节点，
+注意遍历右子树时要删去左子树的节点数量和根节点数量1。当k等于左子树的节点数加1的时候说明根节点就是所要求的值。
+2ms，令人遗憾的是，只打败了百分之7的Java选手，不知道为啥。
+##################
+原来中序遍历就是左根右遍历，即按照大小顺序遍历，所以遍历到就可以结束了。
+##############
+class Solution {
+    public int kthSmallest(TreeNode root, int k) {
+        Deque<TreeNode> stack = new ArrayDeque<TreeNode>();
+        while (root != null || !stack.isEmpty()) {
+            while (root != null) {
+                stack.push(root);
+                root = root.left;
+            }
+            root = stack.pop();
+            --k;
+            if (k == 0) {
+                break;
+            }
+            root = root.right;
+        }
+        return root.val;
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/kth-smallest-element-in-a-bst/solution/er-cha-sou-suo-shu-zhong-di-kxiao-de-yua-8o07/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+###################
+使用堆栈，先保存根节点和左子树入栈，待左子树为空时，出栈，相当于根节点出栈，然后用同样方式遍历右子树，结束后返回根节点。该根节点其实是上一个节点的左子树
+以此类推，就是中序遍历，中序遍历就是二叉搜索树的顺序遍历。
