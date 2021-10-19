@@ -1,0 +1,144 @@
+请你设计一个数据结构，支持 添加新单词 和 查找字符串是否与任何先前添加的字符串匹配 。
+
+实现词典类 WordDictionary ：
+
+WordDictionary() 初始化词典对象
+void addWord(word) 将 word 添加到数据结构中，之后可以对它进行匹配
+bool search(word) 如果数据结构中存在字符串与 word 匹配，则返回 true ；否则，返回  false 。word 中可能包含一些 '.' ，每个 . 都可以表示任何一个字母。
+ 
+
+示例：
+
+输入：
+["WordDictionary","addWord","addWord","addWord","search","search","search","search"]
+[[],["bad"],["dad"],["mad"],["pad"],["bad"],[".ad"],["b.."]]
+输出：
+[null,null,null,null,false,true,true,true]
+
+解释：
+WordDictionary wordDictionary = new WordDictionary();
+wordDictionary.addWord("bad");
+wordDictionary.addWord("dad");
+wordDictionary.addWord("mad");
+wordDictionary.search("pad"); // return False
+wordDictionary.search("bad"); // return True
+wordDictionary.search(".ad"); // return True
+wordDictionary.search("b.."); // return True
+
+##############################
+这题由于不太会构造类，所以不会做，但是在查看了前缀树的构造方法之后有了思路，而且在VSCode里是正确的，包括错误的案例也是正确的所以不知道为啥错了，反正也是查看了资料的，所以
+䢳放在错误这里吧。我的解答和leecode认为正确的解答只差了一点，猜测是全局变量有问题？不过java里应该是类变量。
+
+只有search函数有变化，将外面的boolean变量去掉了，通过函数的递归传递boolean值
+###############################
+public class WordDictionary {
+    TrieNode root;
+    public WordDictionary() {
+        root = new TrieNode();
+    }
+    private class TrieNode{
+        char val;
+        boolean isEnd;
+        TrieNode[] son;
+        TrieNode(){
+            isEnd = false;
+            son = new TrieNode[26];
+        }
+    }
+    public void addWord(String word) {
+        char[] letters = word.toCharArray();
+        TrieNode temp = root;
+        for(int i=0;i<word.length();i++){
+            int pos =letters[i]-'a';
+            if(temp.son[pos]==null){
+                temp.son[pos] = new TrieNode();
+                temp.son[pos].val = letters[i];
+            }
+            temp = temp.son[pos];
+        }
+        temp.isEnd = true;
+    }
+    boolean searchb = false;
+    String searchs = new String();
+    public boolean search(String word) {
+        searchs = word;
+        search2(0,root);
+        return searchb;
+        
+    }
+
+    public void search2(int index,TrieNode temp){
+        if(searchb){return;}
+        if(index==searchs.length()){
+            if(temp.isEnd){
+                searchb = true;
+            }
+            return;
+        }
+        if(searchs.charAt(index)=='.'){
+            for(int i=0;i<26;i++){
+                if(temp.son[i]!=null){
+                    search2(index+1,temp.son[i]);
+                }
+            }
+        }else{
+            int c = searchs.charAt(index)-'a';
+            if(temp.son[c]==null) {searchb = false; return;}
+            else search2(index+1,temp.son[c]);
+        }
+    }
+}
+############################
+public class WordDictionary {
+    TrieNode root;
+    public WordDictionary() {
+        root = new TrieNode();
+    }
+    private class TrieNode{
+        char val;
+        boolean isEnd;
+        TrieNode[] son;
+        TrieNode(){
+            isEnd = false;
+            son = new TrieNode[26];
+        }
+    }
+    public void addWord(String word) {
+        char[] letters = word.toCharArray();
+        TrieNode temp = root;
+        for(int i=0;i<word.length();i++){
+            int pos =letters[i]-'a';
+            if(temp.son[pos]==null){
+                temp.son[pos] = new TrieNode();
+                temp.son[pos].val = letters[i];
+            }
+            temp = temp.son[pos];
+        }
+        temp.isEnd = true;
+    }
+    String searchs = new String();
+    public boolean search(String word) {
+        searchs = word;
+        return search2(0,root);
+    }
+
+    public boolean search2(int index,TrieNode temp){
+        // if(searchb){return;}
+        if(index==searchs.length()){
+            return temp.isEnd;
+        }else{
+            if(searchs.charAt(index)=='.'){
+                for(int i=0;i<26;i++){
+                    if(temp.son[i]!=null&&search2(index+1,temp.son[i])){
+                        return true;
+                    }
+                }
+                return false;
+            }else{
+                int c = searchs.charAt(index)-'a';
+                if(temp.son[c]==null) {return false;}
+                return search2(index+1,temp.son[c]);
+            }
+        }
+    }
+}
