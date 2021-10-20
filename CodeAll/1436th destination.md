@@ -1,7 +1,7 @@
 ### 
-给你一份旅游线路图，该线路图中的旅行线路用数组 paths 表示，其中 paths[i] = [cityAi, cityBi] 表示该线路将会从 cityAi 直接前往 cityBi 。
-请你找出这次旅行的终点站，即没有任何可以通往其他城市的线路的城市。
-题目数据保证线路图会形成一条不存在循环的线路，因此恰有一个旅行终点站。
+-给你一份旅游线路图，该线路图中的旅行线路用数组 paths 表示，其中 paths[i] = [cityAi, cityBi] 表示该线路将会从 cityAi 直接前往 cityBi 。
+-请你找出这次旅行的终点站，即没有任何可以通往其他城市的线路的城市。
+-题目数据保证线路图会形成一条不存在循环的线路，因此恰有一个旅行终点站。
 
 
 示例 1：
@@ -24,7 +24,7 @@
 链接：https://leetcode-cn.com/problems/destination-city
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 ########################
-
+```java
 class Solution {
     public String destCity(List<List<String>> paths) {
         HashMap<String,Boolean> destcity = new HashMap<String,Boolean>();
@@ -47,7 +47,7 @@ class Solution {
         return "wrong";
     }
 }
-
+```
 ############
 自己的思路就是先遍历所有地点，如果遍历时经过了两次，说明这个城市是中转城市，否则为起点或终点。然后再次遍历，返回终点。此方法过于复杂，因为得到了起终点两个结果。
 ###########
