@@ -30,6 +30,8 @@ wordDictionary.search("b.."); // return True
 䢳放在错误这里吧。我的解答和leecode认为正确的解答只差了一点，猜测是全局变量有问题？不过java里应该是类变量。
 
 只有search函数有变化，将外面的boolean变量去掉了，通过函数的递归传递boolean值
+
+更新，忘记重置searchb变量了，因为这是个全局变量，每次search前应该重置为false；
 ###############################
 public class WordDictionary {
     TrieNode root;
@@ -61,6 +63,7 @@ public class WordDictionary {
     boolean searchb = false;
     String searchs = new String();
     public boolean search(String word) {
+        searchb = false;
         searchs = word;
         search2(0,root);
         return searchb;
